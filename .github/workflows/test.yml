@@ -9,28 +9,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        run: git clone https://github.com/linshiyonghu12138/gradle-kotlin-test.git
 
-      - name: Cd
-        run: cd gradle-kotlin-test
-        
-      - name: Debug
-        run: tree
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up JDK
         uses: actions/setup-java@v1.4.4
         with:
           java-version: '17'
 
-      - name: Gradle Build Action
-        run: ./gradlew clean assemble
-
       - name: Docker Login
         uses: ./action.yaml
         with:
           registry: fengwenhao
           image: gradle-ci-test
+          dockerfile: ./test/Dockerfile
+          directory: ./test
           username: fengwenhao
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
           addTimestamp: true
