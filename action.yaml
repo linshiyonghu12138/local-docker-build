@@ -106,7 +106,11 @@ runs:
       shell: sh
       run: |
         echo "::set-output name=image::${{ inputs.registry }}/${{ inputs.image }}"
-        echo "::set-output name=tag::${{ inputs.addTimestamp ? steps.get-time.outputs.time : inputs.tags }}"
+        if [[ ${{ inputs.addTimestamp }} == 'true' ]]; then
+          echo "::set-output name=tag::${{ steps.get-time.outputs.time }}"
+        else
+          echo "::set-output name=tag::${{ inputs.tags }}"
+        fi
 
     - name: Echo Image Name
       id: total-image-name
@@ -123,11 +127,6 @@ runs:
       run: |
         docker build -t ${{ steps.total-image-name.output.tag }} \
           --file ${{ input.dockerfile }} \
-          ${{ inputs.buildArgs != '' ? '--build-arg' : '' }} ${{ inputs.buildArgs }} \
-          ${{ inputs.labels != '' ? '--label ', : '' }} ${{ inputs.labels }} \
-          ${{ inputs.target != '' ? '--target ' : '' }} ${{ inputs.target }} \
-          ${{ inputs.platform != '' ? '--platform ' : '' }} ${{ inputs.platform }} \
-          ${{ inputs.ssh != '' ? '--ssh ' : '' }} ${{ inputs.ssh }} \
           ${{ inputs.directory }}
 
     - name: Tag Latest
