@@ -119,14 +119,14 @@ runs:
         if [[ ${{ steps.image-name.output.tag == '' }} == 'true' ]]; then
           echo "::set-output name=tag::${{ steps.get-time.outputs.time }}"
         else
-          echo "::set-output name=tag::${{ steps.image-name.output.image }}:${{ image-name.output.tag }}"
+          echo "::set-output name=tag::${{ steps.image-name.output.image }}:${{ step.image-name.output.tag }}"
         fi
 
     - name: Build
       shell: sh
       run: |
         docker build -t ${{ steps.total-image-name.output.tag }} \
-          --file ${{ input.dockerfile }} \
+          --file ${{ inputs.dockerfile }} \
           ${{ inputs.directory }}
 
     - name: Tag Latest
