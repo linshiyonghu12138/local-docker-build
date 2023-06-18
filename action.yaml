@@ -118,10 +118,10 @@ runs:
 
     - name: Login
       uses: docker/login-action@v2
-      if: ${{ inputs.login != '' && inputs.password != '' }}
+      if: ${{ inputs.username != '' && inputs.password != '' }}
       with:
         registry: ${{ inputs.registry }}
-        username: ${{ inputs.login }}
+        username: ${{ inputs.username }}
         password: ${{ inputs.password }}
 
     - name: Tag Latest
