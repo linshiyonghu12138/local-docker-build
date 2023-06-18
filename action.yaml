@@ -1,0 +1,145 @@
+name: 'Local docker Build and Push'
+description: 'Build your docker image in github workflow machine after your project build complete.'
+author: feng.wenhao@outlook.com
+branding:
+  icon: 'tag'
+  color: 'white'
+inputs:
+  image:
+    description: "Name of the Docker image"
+    required: true
+  tags: # optional
+    description: "Tags override for Docker image"
+    required: false
+  registry: # optional
+    description: "Target Docker registry"
+    required: false
+    default: 'docker.io/library'
+  dockerfile: # optional, default is Dockerfile
+    description: "Location of Dockerfile, if not Dockerfile in root directory"
+    required: false
+    default: './Dockerfile'
+  directory: # optional
+    description: "Directory to run `docker build` from, if not project root"
+    required: false
+    default: '.'
+  buildArgs: # optional
+    description: "Docker build arguments passed via --build-arg"
+    required: false
+  labels: # optional
+    description: "Docker build labels passed via --label"
+    required: false
+  target: # optional
+    description: "Docker build target passed via --target"
+    required: false
+  platform: # optional
+    description: "Docker build platform passed via --platform"
+    required: false
+  ssh: # optional
+    description: "Docker build ssh options passed via --ssh"
+    required: false
+  username: # optional
+    description: "Docker registry username"
+    required: false
+  password: # optional
+    description: "Docker registry password"
+    required: false
+  #  gitHubOrg: # optional
+  #    description: "GitHub organization to push image to (if not current)"
+  #    required: false
+  addLatest: # optional, default is false
+    description: "Adds latest tag to auto-generated GitOps tag"
+    required: false
+    default: false
+  addTimestamp: # optional, default is false
+    description: "Suffixes a build timestamp to the branch-based Docker tag"
+    required: false
+    default: false
+  #  enableBuildKit: # optional, default is false
+  #    description: "Enables Docker BuildKit support"
+  #    required: false
+  #    default: false
+  #  multiPlatform: # optional, default is false
+  #    description: "Builds image with buildx to support multiple platforms"
+  #    required: false
+  #    default: false
+  #  overrideDriver: # optional, default is false
+  #    description: "Disables setting up docker-container driver"
+  #    required: false
+  #    default: false
+  pushImage: # optional, default is true
+    description: "Flag for disabling the login & push steps, set to true by default"
+    required: false
+    default: true
+  timeZone: # optional, default is UTC
+    description: "When using timestamp as tag, set timestamp timeZone"
+    required: false
+    default: 'UTC'
+outputs:
+  image:
+    description: "Docker image name"
+    value: ${{ steps.image-name.outputs.image }}
+  tag:
+    description: "Docker image tag"
+    value: ${{ steps.result.outputs.tag }}
+runs:
+  using: "sequential"
+  steps:
+
+    - name: Login
+      uses: docker/login-action@v2
+      if: ${{ inputs.login != '' && inputs.password != '' }}
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.login }}
+        password: ${{ inputs.password }}
+
+    - name: Get Timestamp Action
+      id: get-time
+      uses: nanzm/get-time-action@v2.0
+      with:
+        timeZone: ${{ inputs.timeZone }}
+        format: YYYYMMDDHHmmss
+
+    - name: Echo Image Name
+      id: image-name
+      run: |
+        echo "::set-output name=image::${{ inputs.registry + '/' + inputs.image }}"
+        echo "::set-output name=tag::${{ inputs.addTimestamp ? steps.get-time.outputs.time : inputs.tags }}"
+
+    - name: Echo Image Name
+      id: total-image-name
+      run: |
+        echo "::set-output name=tag::${{ steps.image-name.output.image }}${{ steps.image-name.output.tag == '' ? '' : ':' + image-name.output.tag }}"
+
+    - name: Build
+      run: |
+        docker build -t ${{ steps.total-image-name.output.tag }} \
+          --file ${{ input.dockerfile }} \
+          ${{ inputs.buildArgs != '' ? '--build-arg' + inputs.buildArgs : '' }} \
+          ${{ inputs.buildArgs != '' ? '--build-arg' + inputs.buildArgs : '' }} \
+          ${{ inputs.labels != '' ? '--label' + inputs.labels : '' }} \
+          ${{ inputs.target != '' ? '--target' + inputs.target : '' }} \
+          ${{ inputs.platform != '' ? '--platform' + inputs.platform : '' }} \
+          ${{ inputs.ssh != '' ? '--ssh' + inputs.ssh : '' }} \
+          ${{ inputs.directory }}
+
+    - name: Tag Latest
+      if: ${{ inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
+      run: docker tag ${{ steps.total-image-name.output.tag }} ${{ steps.image-name.output.image }}:latest
+
+    - name: Push Image
+      if: ${{ inputs.pushImage }}
+      run: docker push ${{ steps.total-image-name.output.tag }}
+
+    - name: Push Latest Image
+      if: ${{ inputs.pushImage && inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
+      run: docker push ${{ steps.image-name.output.image }}:latest
+
+    - name: Remove Image
+      if: ${{ inputs.pushImage }}
+      run: docker rmi ${{ steps.total-image-name.output.tag }}
+
+    - name: Remove Latest Image
+      if: ${{ inputs.pushImage && inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
+      run: docker rmi ${{ steps.image-name.output.image }}:latest
