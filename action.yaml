@@ -105,26 +105,25 @@ runs:
       id: image-name
       shell: sh
       run: |
-        echo "::set-output name=image::${{ inputs.registry + '/' + inputs.image }}"
+        echo "::set-output name=image::${{ concat(inputs.registry, '/', inputs.image) }}"
         echo "::set-output name=tag::${{ inputs.addTimestamp ? steps.get-time.outputs.time : inputs.tags }}"
 
     - name: Echo Image Name
       id: total-image-name
       shell: sh
       run: |
-        echo "::set-output name=tag::${{ steps.image-name.output.image }}${{ steps.image-name.output.tag == '' ? '' : ':' + image-name.output.tag }}"
+        echo "::set-output name=tag::${{ steps.image-name.output.image }}${{ steps.image-name.output.tag == '' ? '' : concat(':', image-name.output.tag) }}"
 
     - name: Build
       shell: sh
       run: |
         docker build -t ${{ steps.total-image-name.output.tag }} \
           --file ${{ input.dockerfile }} \
-          ${{ inputs.buildArgs != '' ? '--build-arg' + inputs.buildArgs : '' }} \
-          ${{ inputs.buildArgs != '' ? '--build-arg' + inputs.buildArgs : '' }} \
-          ${{ inputs.labels != '' ? '--label' + inputs.labels : '' }} \
-          ${{ inputs.target != '' ? '--target' + inputs.target : '' }} \
-          ${{ inputs.platform != '' ? '--platform' + inputs.platform : '' }} \
-          ${{ inputs.ssh != '' ? '--ssh' + inputs.ssh : '' }} \
+          ${{ inputs.buildArgs != '' ? concat('--build-arg ', inputs.buildArgs) : '' }} \
+          ${{ inputs.labels != '' ? concat('--label ', inputs.labels) : '' }} \
+          ${{ inputs.target != '' ? concat('--target ', inputs.target) : '' }} \
+          ${{ inputs.platform != '' ? concat('--platform ', inputs.platform) : '' }} \
+          ${{ inputs.ssh != '' ? concat('--ssh ', inputs.ssh) : '' }} \
           ${{ inputs.directory }}
 
     - name: Tag Latest
