@@ -11,10 +11,14 @@ inputs:
   tags: # optional
     description: "Tags override for Docker image"
     required: false
-  registry: # optional
+  registry: # optional, default is docker hub
     description: "Target Docker registry"
     required: false
-    default: 'docker.io/library'
+    default: 'docker.io'
+  repository: # optional, default is username
+    description: "Docker repository"
+    required: false
+    default: username
   dockerfile: # optional, default is Dockerfile
     description: "Location of Dockerfile, if not Dockerfile in root directory"
     required: false
@@ -86,6 +90,15 @@ runs:
   using: "composite"
   steps:
 
+    - name: Echo repository
+      shell: sh
+      run: |
+        if [ ${{ inputs.repository == '' }} ]; then
+          echo "REPOSITORY=${{ inputs.username }}" >> $GITHUB_ENV
+        else
+          echo "REPOSITORY=${{ inputs.repository }}" >> $GITHUB_ENV
+        fi
+
     - name: Get Timestamp Action
       id: get-time
       uses: nanzm/get-time-action@v2.0
@@ -96,7 +109,7 @@ runs:
     - name: Echo Image Name
       shell: sh
       run: |
-        echo "IMAGE_NAME=${{ inputs.registry }}/${{ inputs.image }}" >> $GITHUB_ENV
+        echo "IMAGE_NAME=${{ inputs.registry }}/${{ env.REPOSITORY }}/${{ inputs.image }}" >> $GITHUB_ENV
         if [ ${{ inputs.addTimestamp }} ]; then
           echo "IMAGE_TAG=${{ steps.get-time.outputs.time }}" >> $GITHUB_ENV
         elif [ ${{ inputs.tags == '' }} ]; then
