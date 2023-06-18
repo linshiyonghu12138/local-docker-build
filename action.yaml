@@ -83,7 +83,7 @@ outputs:
     description: "Docker image tag"
     value: ${{ steps.result.outputs.tag }}
 runs:
-  using: "sequential"
+  using: "composite"
   steps:
 
     - name: Login
