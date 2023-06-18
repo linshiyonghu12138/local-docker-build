@@ -103,16 +103,19 @@ runs:
 
     - name: Echo Image Name
       id: image-name
+      shell: sh
       run: |
         echo "::set-output name=image::${{ inputs.registry + '/' + inputs.image }}"
         echo "::set-output name=tag::${{ inputs.addTimestamp ? steps.get-time.outputs.time : inputs.tags }}"
 
     - name: Echo Image Name
       id: total-image-name
+      shell: sh
       run: |
         echo "::set-output name=tag::${{ steps.image-name.output.image }}${{ steps.image-name.output.tag == '' ? '' : ':' + image-name.output.tag }}"
 
     - name: Build
+      shell: sh
       run: |
         docker build -t ${{ steps.total-image-name.output.tag }} \
           --file ${{ input.dockerfile }} \
@@ -126,20 +129,25 @@ runs:
 
     - name: Tag Latest
       if: ${{ inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
+      shell: sh
       run: docker tag ${{ steps.total-image-name.output.tag }} ${{ steps.image-name.output.image }}:latest
 
     - name: Push Image
       if: ${{ inputs.pushImage }}
+      shell: sh
       run: docker push ${{ steps.total-image-name.output.tag }}
 
     - name: Push Latest Image
       if: ${{ inputs.pushImage && inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
+      shell: sh
       run: docker push ${{ steps.image-name.output.image }}:latest
 
     - name: Remove Image
       if: ${{ inputs.pushImage }}
+      shell: sh
       run: docker rmi ${{ steps.total-image-name.output.tag }}
 
     - name: Remove Latest Image
       if: ${{ inputs.pushImage && inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
+      shell: sh
       run: docker rmi ${{ steps.image-name.output.image }}:latest
