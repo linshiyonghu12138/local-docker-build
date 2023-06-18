@@ -97,9 +97,9 @@ runs:
       shell: sh
       run: |
         echo "IMAGE_NAME=${{ inputs.registry }}/${{ inputs.image }}" >> $GITHUB_ENV
-        if [[ ${{ inputs.addTimestamp }} ]]; then
+        if [ ${{ inputs.addTimestamp }} ]; then
           echo "IMAGE_TAG=${{ steps.get-time.outputs.time }}" >> $GITHUB_ENV
-        elif [[ ${{ inputs.tags == '' }} ]]; then
+        elif [ ${{ inputs.tags == '' }} ]; then
           echo "IMAGE_TAG=latest" >> $GITHUB_ENV
         else
           echo "IMAGE_TAG=${{ inputs.tags }}" >> $GITHUB_ENV
@@ -107,7 +107,7 @@ runs:
 
     - name: Echo Image Name With Tag
       shell: sh
-      run: echo "IMAGE_NAME_WITH_TAG=${{ env.IMAGE_NAME }}:${{ steps.get-time.outputs.time }}" >> $GITHUB_ENV
+      run: echo "IMAGE_NAME_WITH_TAG=${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
 
     - name: Build
       shell: sh

@@ -19,7 +19,7 @@ jobs:
           registry: fengwenhao
           image: gradle-ci-test
           dockerfile: ./test/Dockerfile
-          login: fengwenhao
+          username: fengwenhao
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
           addTimestamp: true
           addLatest: true
