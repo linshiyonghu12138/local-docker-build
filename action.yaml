@@ -138,7 +138,7 @@ runs:
         password: ${{ inputs.password }}
 
     - name: Tag Latest
-      if: ${{ inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
+      if: ${{ inputs.addLatest && env.IMAGE_TAG != '' && env.IMAGE_TAG != 'latest' }}
       shell: sh
       run: docker tag ${{ env.IMAGE_NAME_WITH_TAG }} ${{ env.IMAGE_NAME }}:latest
 
@@ -148,7 +148,7 @@ runs:
       run: docker push ${{ env.IMAGE_NAME_WITH_TAG }}
 
     - name: Push Latest Image
-      if: ${{ inputs.pushImage && inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
+      if: ${{ inputs.pushImage && inputs.addLatest && env.IMAGE_TAG != '' && env.IMAGE_TAG != 'latest' }}
       shell: sh
       run: docker push ${{ env.IMAGE_NAME }}:latest
 
@@ -158,6 +158,6 @@ runs:
       run: docker rmi ${{ env.IMAGE_NAME_WITH_TAG }}
 
     - name: Remove Latest Image
-      if: ${{ inputs.pushImage && inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
+      if: ${{ inputs.pushImage && inputs.addLatest && env.IMAGE_TAG != '' && env.IMAGE_TAG != 'latest' }}
       shell: sh
       run: docker rmi ${{ env.IMAGE_NAME }}:latest
