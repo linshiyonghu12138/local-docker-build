@@ -111,6 +111,11 @@ runs:
         else
           echo "IMAGE_TAG=${{ inputs.tags }}" >> $GITHUB_ENV
         fi
+
+    - name: Echo Image Name
+      id: image-name
+      shell: sh
+      run: |
         if [[ ${{ env.IMAGE_NAME == '' }} == 'true' ]]; then
           echo "IMAGE_NAME_WITH_TAG=${{ env.IMAGE_NAME }}:${{ steps.get-time.outputs.time }}" >> $GITHUB_ENV
         else
@@ -120,7 +125,7 @@ runs:
     - name: Build
       shell: sh
       run: |
-        docker build -t ${{ env.IMAGE_NAME_WITH_TAG }} \
+        docker build --tag ${{ env.IMAGE_NAME_WITH_TAG }} \
           --file ${{ inputs.dockerfile }} \
           ${{ inputs.directory }}
 
