@@ -18,7 +18,6 @@ inputs:
   repository: # optional, default is username
     description: "Docker repository"
     required: false
-    default: username
   dockerfile: # optional, default is Dockerfile
     description: "Location of Dockerfile, if not Dockerfile in root directory"
     required: false
