@@ -127,18 +127,28 @@ runs:
       run: |
         if [ ${{ inputs.buildArgs != '' }} ]; then
           echo "BUILD_ARGS=--build-arg ${{ inputs.buildArgs }}" >> $GITHUB_ENV
+        else
+          echo "BUILD_ARGS=" >> $GITHUB_ENV
         fi
         if [ ${{ inputs.labels != '' }} ]; then
           echo "LABELS=--label ${{ inputs.labels }}" >> $GITHUB_ENV
+        else
+          echo "LABELS=" >> $GITHUB_ENV
         fi
         if [ ${{ inputs.target != '' }} ]; then
           echo "TARGET=--target ${{ inputs.target }}" >> $GITHUB_ENV
+        else
+          echo "TARGET=" >> $GITHUB_ENV
         fi
         if [ ${{ inputs.platform != '' }} ]; then
           echo "PLATFORM=--platform ${{ inputs.platform }}" >> $GITHUB_ENV
+        else
+          echo "PLATFORM=" >> $GITHUB_ENV
         fi
         if [ ${{ inputs.ssh != '' }} ]; then
           echo "SSH=--ssh ${{ inputs.ssh }}" >> $GITHUB_ENV
+        else
+          echo "SSH=" >> $GITHUB_ENV
         fi
 
     - name: Build
