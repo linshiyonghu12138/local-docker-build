@@ -115,12 +115,7 @@ runs:
 
     - name: Echo Image Name With Tag
       shell: sh
-      run: |
-        if [[ ${{ inputs.addTimestamp }} ]]; then
-          echo "IMAGE_NAME_WITH_TAG=${{ env.IMAGE_NAME }}:${{ steps.get-time.outputs.time }}" >> $GITHUB_ENV
-        else
-          echo "IMAGE_NAME_WITH_TAG=${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
-        fi
+      run: echo "IMAGE_NAME_WITH_TAG=${{ env.IMAGE_NAME }}:${{ steps.get-time.outputs.time }}" >> $GITHUB_ENV
 
     - name: Build
       shell: sh
