@@ -93,7 +93,7 @@ runs:
     - name: Echo repository
       shell: sh
       run: |
-        if [[ "${{ inputs.repository == '' }}" = "true" ]]; then
+        if ${{ inputs.repository == '' }}; then
           echo "REPOSITORY=${{ inputs.username }}" >> $GITHUB_ENV
         else
           echo "REPOSITORY=${{ inputs.repository }}" >> $GITHUB_ENV
@@ -110,9 +110,9 @@ runs:
       shell: sh
       run: |
         echo "IMAGE_NAME=${{ inputs.registry }}/${{ env.REPOSITORY }}/${{ inputs.image }}" >> $GITHUB_ENV
-        if [[ "${{ inputs.addTimestamp }}" = "true" ]]; then
+        if ${{ inputs.addTimestamp }}; then
           echo "IMAGE_TAG=${{ steps.get-time.outputs.time }}" >> $GITHUB_ENV
-        elif [[ "${{ inputs.tags == '' }}" = "true" ]]; then
+        elif ${{ inputs.tags == '' }}; then
           echo "IMAGE_TAG=latest" >> $GITHUB_ENV
         else
           echo "IMAGE_TAG=${{ inputs.tags }}" >> $GITHUB_ENV
@@ -125,27 +125,27 @@ runs:
     - name: Echo Build Param
       shell: sh
       run: |
-        if [[ "${{ inputs.buildArgs != '' }}" = "true" ]]; then
+        if ${{ inputs.buildArgs != '' }}; then
           echo "BUILD_ARGS=--build-arg ${{ inputs.buildArgs }}" >> $GITHUB_ENV
         else
           echo "BUILD_ARGS=" >> $GITHUB_ENV
         fi
-        if [[ "${{ inputs.labels != '' }}" = "true" ]]; then
+        if ${{ inputs.labels != '' }}; then
           echo "LABELS=--label ${{ inputs.labels }}" >> $GITHUB_ENV
         else
           echo "LABELS=" >> $GITHUB_ENV
         fi
-        if [[ "${{ inputs.target != '' }}" = "true" ]]; then
+        if ${{ inputs.target != '' }}; then
           echo "TARGET=--target ${{ inputs.target }}" >> $GITHUB_ENV
         else
           echo "TARGET=" >> $GITHUB_ENV
         fi
-        if [[ "${{ inputs.platform != '' }}" = "true" ]]; then
+        if ${{ inputs.platform != '' }}; then
           echo "PLATFORM=--platform ${{ inputs.platform }}" >> $GITHUB_ENV
         else
           echo "PLATFORM=" >> $GITHUB_ENV
         fi
-        if [[ "${{ inputs.ssh != '' }}" = "true" ]]; then
+        if ${{ inputs.ssh != '' }}; then
           echo "SSH=--ssh ${{ inputs.ssh }}" >> $GITHUB_ENV
         else
           echo "SSH=" >> $GITHUB_ENV
