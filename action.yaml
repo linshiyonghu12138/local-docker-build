@@ -122,11 +122,31 @@ runs:
       shell: sh
       run: echo "IMAGE_NAME_WITH_TAG=${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
 
+    - name: Echo Build Param
+      shell: sh
+      run: |
+        if [ ${{ inputs.buildArgs != '' }} ]; then
+          echo "BUILD_ARGS=--build-arg ${{ inputs.buildArgs }}" >> $GITHUB_ENV
+        fi
+        if [ ${{ inputs.labels != '' }} ]; then
+          echo "LABELS=--label ${{ inputs.labels }}" >> $GITHUB_ENV
+        fi
+        if [ ${{ inputs.target != '' }} ]; then
+          echo "TARGET=--target ${{ inputs.target }}" >> $GITHUB_ENV
+        fi
+        if [ ${{ inputs.platform != '' }} ]; then
+          echo "PLATFORM=--platform ${{ inputs.platform }}" >> $GITHUB_ENV
+        fi
+        if [ ${{ inputs.ssh != '' }} ]; then
+          echo "SSH=--ssh ${{ inputs.ssh }}" >> $GITHUB_ENV
+        fi
+
     - name: Build
       shell: sh
       run: |
         docker build --tag ${{ env.IMAGE_NAME_WITH_TAG }} \
           --file ${{ inputs.dockerfile }} \
+          ${{ env.BUILD_ARGS }} ${{ env.LABELS }} ${{ env.TARGET }} ${{ env.PLATFORM }} ${{ env.SSH }} \
           ${{ inputs.directory }}
 
     - name: Login
