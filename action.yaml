@@ -86,14 +86,6 @@ runs:
   using: "composite"
   steps:
 
-    - name: Login
-      uses: docker/login-action@v2
-      if: ${{ inputs.login != '' && inputs.password != '' }}
-      with:
-        registry: ${{ inputs.registry }}
-        username: ${{ inputs.login }}
-        password: ${{ inputs.password }}
-
     - name: Get Timestamp Action
       id: get-time
       uses: nanzm/get-time-action@v2.0
@@ -123,6 +115,14 @@ runs:
         docker build --tag ${{ env.IMAGE_NAME_WITH_TAG }} \
           --file ${{ inputs.dockerfile }} \
           ${{ inputs.directory }}
+
+    - name: Login
+      uses: docker/login-action@v2
+      if: ${{ inputs.login != '' && inputs.password != '' }}
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.login }}
+        password: ${{ inputs.password }}
 
     - name: Tag Latest
       if: ${{ inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
