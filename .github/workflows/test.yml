@@ -22,7 +22,7 @@ jobs:
         run: tree
 
       - name: Docker Login
-        uses: ./action.yaml
+        uses: .
         with:
           registry: fengwenhao
           image: gradle-ci-test
