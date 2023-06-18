@@ -19,10 +19,10 @@ jobs:
           java-version: '17'
           
       - name: debug
-        run: tree
+        run: ls
 
       - name: Docker Login
-        uses: .
+        uses: ./action.yaml
         with:
           registry: fengwenhao
           image: gradle-ci-test
