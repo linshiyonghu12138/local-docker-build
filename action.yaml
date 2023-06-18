@@ -78,10 +78,10 @@ inputs:
 outputs:
   image:
     description: "Docker image name"
-    value: ${{ steps.image-name.outputs.image }}
+    value: ${{ env.IMAGE_NAME }}
   tag:
     description: "Docker image tag"
-    value: ${{ steps.result.outputs.tag }}
+    value: ${{ env.IMAGE_TAG }}
 runs:
   using: "composite"
   steps:
@@ -105,49 +105,44 @@ runs:
       id: image-name
       shell: sh
       run: |
-        echo "::set-output name=image::${{ inputs.registry }}/${{ inputs.image }}"
+        echo "IMAGE_NAME=${{ inputs.registry }}/${{ inputs.image }}" >> $GITHUB_ENV
         if [[ ${{ inputs.addTimestamp }} == 'true' ]]; then
-          echo "::set-output name=tag::${{ steps.get-time.outputs.time }}"
+          echo "IMAGE_TAG=${{ steps.get-time.outputs.time }}" >> $GITHUB_ENV
         else
-          echo "::set-output name=tag::${{ inputs.tags }}"
+          echo "IMAGE_TAG=${{ inputs.tags }}" >> $GITHUB_ENV
         fi
-
-    - name: Echo Image Name
-      id: total-image-name
-      shell: sh
-      run: |
-        if [[ ${{ steps.image-name.output.tag == '' }} == 'true' ]]; then
-          echo "::set-output name=tag::${{ steps.get-time.outputs.time }}"
+        if [[ ${{ env.IMAGE_NAME == '' }} == 'true' ]]; then
+          echo "IMAGE_NAME_WITH_TAG=${{ env.IMAGE_NAME }}:${{ steps.get-time.outputs.time }}" >> $GITHUB_ENV
         else
-          echo "::set-output name=tag::${{ steps.image-name.output.image }}:${{ steps.image-name.output.tag }}"
+          echo "IMAGE_NAME_WITH_TAG=${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
         fi
 
     - name: Build
       shell: sh
       run: |
-        docker build -t ${{ steps.total-image-name.output.tag }} \
+        docker build -t ${{ env.IMAGE_NAME_WITH_TAG }} \
           --file ${{ inputs.dockerfile }} \
           ${{ inputs.directory }}
 
     - name: Tag Latest
       if: ${{ inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
       shell: sh
-      run: docker tag ${{ steps.total-image-name.output.tag }} ${{ steps.image-name.output.image }}:latest
+      run: docker tag ${{ env.IMAGE_NAME_WITH_TAG }} ${{ env.IMAGE_NAME }}:latest
 
     - name: Push Image
       if: ${{ inputs.pushImage }}
       shell: sh
-      run: docker push ${{ steps.total-image-name.output.tag }}
+      run: docker push ${{ env.IMAGE_NAME_WITH_TAG }}
 
     - name: Push Latest Image
       if: ${{ inputs.pushImage && inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
       shell: sh
-      run: docker push ${{ steps.image-name.output.image }}:latest
+      run: docker push ${{ env.IMAGE_NAME }}:latest
 
     - name: Remove Image
       if: ${{ inputs.pushImage }}
       shell: sh
-      run: docker rmi ${{ steps.total-image-name.output.tag }}
+      run: docker rmi ${{ env.IMAGE_NAME_WITH_TAG }}
 
     - name: Remove Latest Image
       if: ${{ inputs.pushImage && inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
