@@ -102,7 +102,6 @@ runs:
         format: YYYYMMDDHHmmss
 
     - name: Echo Image Name
-      id: image-name
       shell: sh
       run: |
         echo "IMAGE_NAME=${{ inputs.registry }}/${{ inputs.image }}" >> $GITHUB_ENV
@@ -112,8 +111,7 @@ runs:
           echo "IMAGE_TAG=${{ inputs.tags }}" >> $GITHUB_ENV
         fi
 
-    - name: Echo Image Name
-      id: image-name
+    - name: Echo Image Name With Tag
       shell: sh
       run: |
         if [[ ${{ env.IMAGE_NAME == '' }} == 'true' ]]; then
@@ -152,4 +150,4 @@ runs:
     - name: Remove Latest Image
       if: ${{ inputs.pushImage && inputs.addLatest && inputs.tags != '' && inputs.tags != 'latest' }}
       shell: sh
-      run: docker rmi ${{ steps.image-name.output.image }}:latest
+      run: docker rmi ${{ env.IMAGE_NAME }}:latest
